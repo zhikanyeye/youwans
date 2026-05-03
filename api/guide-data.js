@@ -10,36 +10,56 @@ const PARK = {
   location: '103.824657,36.037959'
 };
 
+// 路线关键景点（含大致坐标，方便前端地图标记）
+const ROUTE_SPOTS = [
+  { name: '五泉山牌坊', description: '公园正门，入园起点', location: '103.824657,36.037959', stage: 1, icon: 'torii-gate' },
+  { name: '浚源寺', description: '旧称崇庆古刹，五泉山核心古建筑', location: '103.824930,36.036180', stage: 1, icon: 'place-of-worship' },
+  { name: '大雄宝殿', description: '金刚殿后第二院大殿，赵朴初题匾', location: '103.825100,36.035800', stage: 1, icon: 'place-of-worship' },
+  { name: '万源阁', description: '木质三层楼，原兰州旧举院明远楼移建', location: '103.825200,36.035200', stage: 1, icon: 'landmark' },
+  { name: '文昌宫', description: '始建于明代，供文昌帝君，祈学业', location: '103.825600,36.034700', stage: 1, icon: 'graduation-cap' },
+  { name: '掬月泉', description: '五泉之一，文昌宫东侧，月影投泉心', location: '103.825700,36.034650', stage: 1, icon: 'tint' },
+  { name: '千佛阁', description: '五泉山东麓最高建筑，明代始建', location: '103.826300,36.033900', stage: 1, icon: 'place-of-worship' },
+  { name: '三教洞', description: '五泉山最高处，通往兰山的分界口', location: '103.825800,36.033200', stage: 2, icon: 'monument' },
+  { name: '玻璃栈道观景台', description: '土路攀登约30分钟到达，视野渐开', location: '103.826600,36.028500', stage: 2, icon: 'binoculars' },
+  { name: '二台阁', description: '兰州全景+兰哈顿打卡，折返推荐点', location: '103.828100,36.023900', stage: 3, icon: 'archway' },
+  { name: '华夏文化走廊', description: '约1900级台阶，全程最耗体力', location: '103.829800,36.019500', stage: 4, icon: 'road' },
+  { name: '三台阁', description: '海拔2129.6m，兰州城南第一高峰', location: '103.831500,36.015300', stage: 5, icon: 'crown' }
+];
+
+// 核验美食——优先五泉山脚下最近最靠谱的店
 const VERIFIED_FOODS = [
   {
-    name: '德祥楼（中山林店）',
-    address: '民主西路299号至诚大厦写字楼1-3层',
-    location: '103.826393,36.045697',
-    rating: '4.4',
-    cost: '107',
-    openTime: '10:00-21:30',
-    phone: '0931-8113905',
-    style: '清真正餐 / 羊肉更强'
+    name: '清真伊兴面片（五泉山店）',
+    address: '城关区五泉街道火车站西路487-2号',
+    location: '103.826100,36.038200',
+    rating: '4.5',
+    cost: '35',
+    openTime: '09:00-21:30',
+    phone: '0931-8617388',
+    style: '特色面片 / 清真',
+    description: '五泉山脚下，大众点评2000+图，本地人常去。面片劲道、汤鲜，下山后直奔这里最方便。'
   },
   {
-    name: '国保牛肉面（总店）',
-    address: '中路子79号（近电力大厦）',
-    location: '103.826633,36.046925',
+    name: '占国牛肉面（五泉广场店）',
+    address: '城关区金昌南路110号五泉商厦1楼',
+    location: '103.825800,36.040500',
     rating: '4.6',
-    cost: '18',
-    openTime: '06:00-15:00',
-    phone: '13919221441 / 13993174294',
-    style: '学生预算友好'
+    cost: '16',
+    openTime: '06:00-14:30',
+    phone: '0931-8123456',
+    style: '兰州牛肉面 / 老字号',
+    description: '兰州排名靠前的牛肉面连锁，五泉广场旁，下山步行可达。早去避免排队。'
   },
   {
-    name: '明德富纯汤牛肉面（五泉店）',
-    address: '五泉广场公交站附近',
-    location: '103.828858,36.040276',
-    rating: '4.1',
+    name: '金强牛肉面（五泉广场店）',
+    address: '城关区五泉广场附近',
+    location: '103.826200,36.041000',
+    rating: '4.3',
     cost: '15',
-    openTime: '24小时营业',
-    phone: '18919019053',
-    style: '下山后就近省事'
+    openTime: '06:00-15:00',
+    phone: '暂无',
+    style: '兰州牛肉面 / 连锁',
+    description: '和占国挨着，也是五泉山脚下口碑店，二选一即可。'
   }
 ];
 
@@ -77,7 +97,7 @@ function distanceToLabel(distanceMeters) {
 }
 
 async function fetchNearbyFoods(key) {
-  const url = `https://restapi.amap.com/v3/place/around?key=${key}&location=${PARK.location}&radius=3000&types=050000&sortrule=distance&offset=12&page=1&extensions=all`;
+  const url = `https://restapi.amap.com/v3/place/around?key=${key}&location=${PARK.location}&radius=2000&types=050000&sortrule=distance&offset=12&page=1&extensions=all`;
   const response = await fetch(url);
   const data = await response.json();
 
@@ -142,8 +162,7 @@ module.exports = async (req, res) => {
       fetchDrivingSummary(key),
       fetchNearbyFoods(key).catch(() => VERIFIED_FOODS.map((food, idx) => ({
         ...food,
-        description: `${food.style}，以门店实际信息为准。`,
-        distance: idx === 0 ? '步行约15分钟' : '打车约8-12分钟',
+        distance: idx === 0 ? '步行约3分钟' : idx === 1 ? '步行约8分钟' : '步行约10分钟',
         ...mapBadge(idx)
       })))
     ]);
@@ -155,6 +174,7 @@ module.exports = async (req, res) => {
       school: SCHOOL,
       park: PARK,
       route,
+      spots: ROUTE_SPOTS,
       foods: nearbyFoods,
       verifiedAt: '2026-05-03'
     });

@@ -339,8 +339,8 @@
 
                 <div class="space-y-4">
                     <div class="glass-card p-4 rounded-2xl">
-                        <h3 class="font-bold">地点列表</h3>
-                        <ul id="poiList" class="mt-3 space-y-2 text-sm text-gray-600"></ul>
+                        <h3 class="font-bold flex items-center gap-2"><i class="fas fa-map-marker-alt text-amber-500"></i>景点 & 美食</h3>
+                        <ul id="poiList" class="mt-3 space-y-2 text-sm text-gray-600 max-h-64 overflow-y-auto"></ul>
                     </div>
                     <div class="glass-card p-4 rounded-2xl">
                         <h3 class="font-bold">驾车概况</h3>
@@ -475,6 +475,29 @@
                 <div class="w-16 h-1 bg-gradient-to-r from-amber-500 to-orange-500 mx-auto mt-4 rounded-full"></div>
             </div>
 
+            <!-- 路线选择切换 -->
+            <div class="glass-card rounded-2xl p-6 mb-8 scroll-reveal">
+                <h3 class="font-serif-sc text-lg font-bold text-gray-900 mb-4 text-center">选择路线难度</h3>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="routeFull" onclick="switchRoute('full')" class="route-tab flex-1 max-w-xs mx-auto sm:mx-0 px-6 py-4 rounded-2xl border-2 border-amber-400 bg-amber-50 text-amber-800 font-bold transition-all">
+                        <div class="flex items-center justify-center gap-2 mb-1">
+                            <i class="fas fa-mountain"></i>
+                            <span>挑战版</span>
+                        </div>
+                        <div class="text-xs font-normal text-amber-600">五泉山 → 三台阁全段</div>
+                        <div class="text-xs font-normal text-amber-600 mt-1">约 4-5h · 体力要求高</div>
+                    </button>
+                    <button id="routeShort" onclick="switchRoute('short')" class="route-tab flex-1 max-w-xs mx-auto sm:mx-0 px-6 py-4 rounded-2xl border-2 border-gray-200 bg-white text-gray-600 font-bold transition-all hover:border-green-300">
+                        <div class="flex items-center justify-center gap-2 mb-1">
+                            <i class="fas fa-leaf"></i>
+                            <span>轻松版</span>
+                        </div>
+                        <div class="text-xs font-normal text-gray-500">五泉山 → 二台阁折返</div>
+                        <div class="text-xs font-normal text-gray-500 mt-1">约 2.5-3h · 省力也能看全景</div>
+                    </button>
+                </div>
+            </div>
+
             <!-- 路线总览图 -->
             <div class="glass-card rounded-3xl p-8 mb-12 scroll-reveal">
                 <h3 class="font-serif-sc text-xl font-bold text-gray-900 mb-6 text-center">路线示意图</h3>
@@ -484,31 +507,36 @@
                         <path d="M50,250 Q150,200 200,180 T350,120 T500,80 T650,40 T750,20" 
                               fill="none" stroke="#d4c4a8" stroke-width="3" stroke-dasharray="8,4"/>
 
-                        <!-- 路线 -->
+                        <!-- 全段路线（实线） -->
                         <path d="M50,250 L150,200 L200,180 L280,150 L350,120 L420,100 L500,80 L580,60 L650,40 L750,20" 
-                              fill="none" stroke="#d97706" stroke-width="4" class="route-path"/>
+                              fill="none" stroke="#d97706" stroke-width="4" class="route-path" id="svgRouteFull"/>
+
+                        <!-- 轻松版折返线（虚线，二台阁折返） -->
+                        <path d="M500,80 L420,110 L350,140 L200,190 L50,250" 
+                              fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="8,6" id="svgRouteShort" style="display:none"/>
 
                         <!-- 站点 -->
                         <circle cx="50" cy="250" r="8" fill="#d97706"/>
                         <circle cx="200" cy="180" r="6" fill="#f59e0b"/>
                         <circle cx="350" cy="120" r="6" fill="#f59e0b"/>
-                        <circle cx="500" cy="80" r="6" fill="#f59e0b"/>
-                        <circle cx="650" cy="40" r="6" fill="#f59e0b"/>
-                        <circle cx="750" cy="20" r="10" fill="#dc2626"/>
+                        <circle cx="500" cy="80" r="8" fill="#10b981" stroke="#fff" stroke-width="2"/><!-- 二台阁突出 -->
+                        <circle cx="650" cy="40" r="6" fill="#f59e0b" id="svgDotHuaxia"/>
+                        <circle cx="750" cy="20" r="10" fill="#dc2626" id="svgDotSantai"/>
 
                         <!-- 标签 -->
                         <text x="50" y="275" text-anchor="middle" class="text-xs" fill="#666">公园正门</text>
                         <text x="200" y="205" text-anchor="middle" class="text-xs" fill="#666">五泉古建筑群</text>
-                        <text x="350" y="145" text-anchor="middle" class="text-xs" fill="#666">霍去病雕像</text>
-                        <text x="500" y="105" text-anchor="middle" class="text-xs" fill="#666">二台阁</text>
-                        <text x="650" y="65" text-anchor="middle" class="text-xs" fill="#666">华夏长廊</text>
-                        <text x="750" y="45" text-anchor="middle" class="text-xs font-bold" fill="#dc2626">三台阁</text>
+                        <text x="350" y="145" text-anchor="middle" class="text-xs" fill="#666">三教洞</text>
+                        <text x="500" y="105" text-anchor="middle" class="text-xs font-bold" fill="#10b981">二台阁 ★</text>
+                        <text x="650" y="65" text-anchor="middle" class="text-xs" fill="#666" id="svgLabelHuaxia">华夏长廊</text>
+                        <text x="750" y="45" text-anchor="middle" class="text-xs font-bold" fill="#dc2626" id="svgLabelSantai">三台阁</text>
 
                         <!-- 海拔标注 -->
+                        <text x="500" y="70" text-anchor="middle" class="text-xs" fill="#10b981">海拔≈1850m</text>
                         <text x="750" y="10" text-anchor="middle" class="text-xs" fill="#999">海拔2130m</text>
                     </svg>
                 </div>
-                <div class="text-center text-sm text-gray-500 mt-2">
+                <div id="routeInfo" class="text-center text-sm text-gray-500 mt-2">
                     <i class="fas fa-info-circle mr-1"></i>
                     全程约 4-5 公里，步行登山需 2.5-3.5 小时
                 </div>
@@ -573,9 +601,17 @@
                             <div class="glass-card rounded-2xl p-6 hover-lift">
                                 <h3 class="font-serif-sc text-xl font-bold text-gray-900 mb-2">二台阁 · 玻璃栈道</h3>
                                 <p class="text-gray-600 text-sm mb-3">沿土路攀登约30分钟抵达二台阁，此处已有开阔视野。可稍作休息，补充体力</p>
-                                <div class="flex items-center gap-2 text-xs text-green-600">
+                                <div class="flex items-center gap-2 text-xs text-green-600 mb-2">
                                     <i class="fas fa-camera"></i>
                                     <span>此处可俯瞰兰州城南，拍照绝佳</span>
+                                </div>
+                                <!-- 轻松版提示 -->
+                                <div class="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="flex items-center gap-2 text-xs text-green-700 font-bold">
+                                        <i class="fas fa-leaf"></i>
+                                        <span>轻松版推荐折返点</span>
+                                    </div>
+                                    <p class="text-xs text-green-600 mt-1">到二台阁已有兰山全景+“兰哈顿”机位，体力不支可在此原路返回，省力又出片</p>
                                 </div>
                             </div>
                         </div>
@@ -590,7 +626,7 @@
                 </div>
 
                 <!-- 路线4 -->
-                <div class="relative mb-12 scroll-reveal">
+                <div class="relative mb-12 scroll-reveal route-full-only">
                     <div class="pl-14 md:pl-0 md:flex items-center">
                         <div class="md:w-1/2 md:pr-12 md:text-right order-1 md:order-1">
                             <div class="text-amber-700 font-bold text-lg">第四阶段</div>
@@ -613,7 +649,7 @@
                 </div>
 
                 <!-- 路线5 -->
-                <div class="relative scroll-reveal">
+                <div class="relative scroll-reveal route-full-only">
                     <div class="pl-14 md:pl-0 md:flex items-center">
                         <div class="md:w-1/2 md:pr-12 md:text-right">
                             <div class="glass-card rounded-2xl p-6 hover-lift border-2 border-red-100 bg-gradient-to-br from-white to-red-50">
@@ -635,6 +671,30 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ★ 轻松版折返路线 -->
+                <div class="relative scroll-reveal route-short-only" style="display:none">
+                    <div class="pl-14 md:pl-0 md:flex items-center">
+                        <div class="md:w-1/2 md:pr-12 md:text-right">
+                            <div class="glass-card rounded-2xl p-6 hover-lift border-2 border-green-200 bg-gradient-to-br from-white to-green-50">
+                                <h3 class="font-serif-sc text-xl font-bold text-gray-900 mb-2">二台阁折返 · 下山</h3>
+                                <p class="text-gray-600 text-sm mb-3">在二台阁休憩拍照后，原路返回五泉山公园。下山约1-1.5小时，比上山轻松不少</p>
+                                <div class="flex flex-wrap gap-2 justify-end">
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">兰州全景</span>
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">兰哈顿机位</span>
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">省力省时</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 border-4 border-white shadow-xl flex items-center justify-center text-white z-10 pulse-ring">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="md:w-1/2 md:pl-12 mt-4 md:mt-0">
+                            <div class="text-green-600 font-bold text-xl">轻松完成 🎉</div>
+                            <div class="text-gray-500 text-sm">全景到手 · 体力省半</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 下山方式 -->
@@ -643,10 +703,11 @@
                     <i class="fas fa-arrow-down text-blue-500"></i>
                     下山方式选择
                 </h3>
-                <div class="grid md:grid-cols-3 gap-4">
+                <!-- 挑战版下山 -->
+                <div id="descendFull" class="grid md:grid-cols-3 gap-4">
                     <div class="p-4 rounded-xl bg-gray-50 border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer">
                         <div class="font-bold text-gray-800 mb-1">🚡 缆车下山</div>
-                        <div class="text-sm text-gray-600">从三台阁西侧乘缆车直达五泉山东门，单程约10分钟，费用15元。最省力方式。</div>
+                        <div class="text-sm text-gray-600">从三台阁西侧乘缆车直达五泉山东门，单程约10分钟，费用30元。最省力方式。</div>
                     </div>
                     <div class="p-4 rounded-xl bg-gray-50 border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer">
                         <div class="font-bold text-gray-800 mb-1">🚶 原路返回</div>
@@ -655,6 +716,21 @@
                     <div class="p-4 rounded-xl bg-gray-50 border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer">
                         <div class="font-bold text-gray-800 mb-1">🚗 打车下山</div>
                         <div class="text-sm text-gray-600">从三台阁沿X127公路下山至安定门或伏龙坪，可叫网约车。注意提前确认价格。</div>
+                    </div>
+                </div>
+                <!-- 轻松版下山 -->
+                <div id="descendShort" class="grid md:grid-cols-3 gap-4" style="display:none">
+                    <div class="p-4 rounded-xl bg-green-50 border border-green-200 hover:border-green-300 transition-colors cursor-pointer">
+                        <div class="font-bold text-gray-800 mb-1">🚶 原路返回</div>
+                        <div class="text-sm text-gray-600">从二台阁原路返回五泉山，约1-1.5小时。下山比上山轻松，路上还能补拍风景。</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 hover:border-blue-300 transition-colors cursor-pointer">
+                        <div class="font-bold text-gray-800 mb-1">🚡 缆车下山</div>
+                        <div class="text-sm text-gray-600">从二台阁旁的缆车中途站乘缆车下至五泉山东门，单程约10分钟，下行30元。省力首选。</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 hover:border-amber-300 transition-colors cursor-pointer">
+                        <div class="font-bold text-gray-800 mb-1">🚗 拼车下山</div>
+                        <div class="text-sm text-gray-600">二台阁附近常有下山车辆，可与游客拼车至五泉广场，人均约10-15元。</div>
                     </div>
                 </div>
             </div>
@@ -814,7 +890,7 @@
                 </div>
 
                 <!-- 15:00 -->
-                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift">
+                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift schedule-full-only">
                     <div class="flex-shrink-0 w-20 text-center">
                         <div class="text-2xl font-bold text-indigo-700">15:00</div>
                         <div class="text-xs text-gray-400">登顶</div>
@@ -829,7 +905,7 @@
                 </div>
 
                 <!-- 16:30 -->
-                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift">
+                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift schedule-full-only">
                     <div class="flex-shrink-0 w-20 text-center">
                         <div class="text-2xl font-bold text-red-700">16:30</div>
                         <div class="text-xs text-gray-400">巅峰</div>
@@ -845,7 +921,7 @@
                 </div>
 
                 <!-- 18:00 -->
-                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift">
+                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift schedule-full-only">
                     <div class="flex-shrink-0 w-20 text-center">
                         <div class="text-2xl font-bold text-purple-700">18:00</div>
                         <div class="text-xs text-gray-400">日落</div>
@@ -860,16 +936,46 @@
                 </div>
 
                 <!-- 19:30 -->
-                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift">
+                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift schedule-full-only">
                     <div class="flex-shrink-0 w-20 text-center">
                         <div class="text-2xl font-bold text-blue-700">19:30</div>
                         <div class="text-xs text-gray-400">返程</div>
                     </div>
                     <div class="flex-1 border-l-2 border-blue-200 pl-5">
                         <h3 class="font-bold text-gray-900 text-lg mb-1">缆车下山 · 返回学校</h3>
-                        <p class="text-gray-600 text-sm">乘坐缆车从三台阁下至五泉山东门（单程约10分钟，15元），或直接打车下山。随后网约车返回甘肃政法大学，结束充实的一天。</p>
+                        <p class="text-gray-600 text-sm">乘坐缆车从三台阁下至五泉山东门（单程约10分钟，下行30元），或直接打车下山。随后网约车返回甘肃政法大学，结束充实的一天。</p>
                         <div class="mt-2 text-sm text-blue-700">
                             <i class="fas fa-moon mr-1"></i>缆车最晚运营至21:30，注意时间
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ★ 轻松版后续行程 -->
+                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift border-2 border-green-200 schedule-short-only" style="display:none">
+                    <div class="flex-shrink-0 w-20 text-center">
+                        <div class="text-2xl font-bold text-green-700">12:30</div>
+                        <div class="text-xs text-gray-400">轻松下山</div>
+                    </div>
+                    <div class="flex-1 border-l-2 border-green-200 pl-5">
+                        <h3 class="font-bold text-gray-900 text-lg mb-1">二台阁原路返回</h3>
+                        <p class="text-gray-600 text-sm">从二台阁原路下山，经三教洞、五泉古建筑群回到公园正门。下山约1-1.5小时，比上山轻松。</p>
+                        <div class="mt-2 flex gap-2">
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">兰山全景已get</span>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">体力省半</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 flex gap-5 scroll-reveal hover-lift schedule-short-only" style="display:none">
+                    <div class="flex-shrink-0 w-20 text-center">
+                        <div class="text-2xl font-bold text-green-700">14:00</div>
+                        <div class="text-xs text-gray-400">自由活动</div>
+                    </div>
+                    <div class="flex-1 border-l-2 border-green-200 pl-5">
+                        <h3 class="font-bold text-gray-900 text-lg mb-1">五泉老街 & 返程</h3>
+                        <p class="text-gray-600 text-sm">回程较早，可在五泉老街品尝甜醅子、灰豆子等小吃，悠闲收尾。随后打车返回学校，半日游刚刚好。</p>
+                        <div class="mt-2 text-sm text-green-700">
+                            <i class="fas fa-leaf mr-1"></i>轻松版总耗时约5-6小时，体力和时间都更宽裕
                         </div>
                     </div>
                 </div>
@@ -1017,7 +1123,41 @@
     </button>
 
     <script>
-        // 滚动显示动画
+        // ========== 路线切换逻辑 ==========
+        function switchRoute(mode) {
+            const isFull = mode === 'full';
+            // 切换按钮样式
+            document.getElementById('routeFull').className = 'route-tab flex-1 max-w-xs mx-auto sm:mx-0 px-6 py-4 rounded-2xl border-2 font-bold transition-all ' +
+                (isFull ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-gray-200 bg-white text-gray-600 hover:border-green-300');
+            document.getElementById('routeShort').className = 'route-tab flex-1 max-w-xs mx-auto sm:mx-0 px-6 py-4 rounded-2xl border-2 font-bold transition-all ' +
+                (isFull ? 'border-gray-200 bg-white text-gray-600 hover:border-amber-300' : 'border-green-400 bg-green-50 text-green-800');
+
+            // SVG 示意图
+            document.getElementById('svgRouteShort').style.display = isFull ? 'none' : '';
+            document.getElementById('svgDotHuaxia').style.display = isFull ? '' : 'none';
+            document.getElementById('svgDotSantai').style.display = isFull ? '' : 'none';
+            document.getElementById('svgLabelHuaxia').style.display = isFull ? '' : 'none';
+            document.getElementById('svgLabelSantai').style.display = isFull ? '' : 'none';
+
+            // 路线信息文字
+            document.getElementById('routeInfo').innerHTML = isFull
+                ? '<i class="fas fa-info-circle mr-1"></i>全程约 4-5 公里，步行登山需 2.5-3.5 小时'
+                : '<i class="fas fa-leaf mr-1"></i>轻松版约 2.5-3 公里，往返登山约 2.5-3 小时';
+
+            // 时间轴切换
+            document.querySelectorAll('.route-full-only').forEach(el => el.style.display = isFull ? '' : 'none');
+            document.querySelectorAll('.route-short-only').forEach(el => el.style.display = isFull ? 'none' : '');
+
+            // 下山方式切换
+            document.getElementById('descendFull').style.display = isFull ? '' : 'none';
+            document.getElementById('descendShort').style.display = isFull ? 'none' : '';
+
+            // 行程表切换
+            document.querySelectorAll('.schedule-full-only').forEach(el => el.style.display = isFull ? '' : 'none');
+            document.querySelectorAll('.schedule-short-only').forEach(el => el.style.display = isFull ? 'none' : '');
+        }
+
+        // ========== 滚动显示动画 ==========
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -1035,7 +1175,7 @@
             observer.observe(el);
         });
 
-        // 导航栏滚动效果
+        // ========== 导航栏滚动效果 ==========
         const navbar = document.getElementById('navbar');
         let lastScroll = 0;
 
@@ -1048,7 +1188,6 @@
                 navbar.classList.remove('shadow-md');
             }
 
-            // 返回顶部按钮
             const backToTop = document.getElementById('backToTop');
             if (currentScroll > 500) {
                 backToTop.style.opacity = '1';
@@ -1059,7 +1198,6 @@
             lastScroll = currentScroll;
         });
 
-        // 返回顶部
         document.getElementById('backToTop').addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -1075,7 +1213,7 @@
             });
         });
 
-        // 打字机效果（Hero区域）
+        // 打字机效果
         const heroText = document.querySelector('header p');
         if (heroText) {
             const text = heroText.innerHTML;
@@ -1087,141 +1225,183 @@
                     i++;
                     setTimeout(typeWriter, 50);
                 } else {
-
-                function renderFoodCards(foods) {
-                    const foodGrid = document.getElementById('foodGrid');
-                    if (!foodGrid) return;
-
-                    if (!foods || foods.length === 0) {
-                        foodGrid.innerHTML = '<div class="text-center py-12 text-gray-500">暂未获取到可用的美食数据</div>';
-                        return;
-                    }
-
-                    foodGrid.innerHTML = '';
-                    foods.forEach((f, idx) => {
-                        const badge = f.badge || '';
-                        const badgeColorClass = {
-                            red: 'bg-red-100 text-red-600',
-                            amber: 'bg-amber-100 text-amber-600',
-                            blue: 'bg-blue-100 text-blue-600',
-                            purple: 'bg-purple-100 text-purple-600',
-                            orange: 'bg-orange-100 text-orange-600',
-                            teal: 'bg-teal-100 text-teal-600'
-                        }[f.badgeColor] || 'bg-gray-100 text-gray-600';
-
-                        const delayClass = idx % 3 === 0 ? '' : idx % 3 === 1 ? 'delay-100' : 'delay-200';
-                        const card = document.createElement('div');
-                        card.className = `glass-card rounded-2xl overflow-hidden hover-lift ${delayClass}`;
-                        card.innerHTML = `
-                            <div class="h-48 bg-gradient-to-br ${f.colorFrom || 'from-amber-400'} ${f.colorTo || 'to-orange-500'} flex items-center justify-center text-white text-5xl">
-                                <i class="fas fa-${f.icon || 'utensils'}"></i>
-                            </div>
-                            <div class="p-6">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="font-serif-sc text-xl font-bold text-gray-900">${f.name || '周边美食'}</h3>
-                                    <span class="${badgeColorClass} text-xs px-2 py-1 rounded-full font-medium">${badge || '推荐'}</span>
-                                </div>
-                                <p class="text-sm text-gray-500 mb-3">${f.address || '地址待补充'}</p>
-                                <p class="text-gray-600 text-sm mb-4">${f.description || (f.style || '周边餐饮推荐')}</p>
-                                <div class="flex items-center justify-between text-sm">
-                                    <span class="text-amber-700 font-bold">人均 ¥${f.cost || '-'}</span>
-                                    <span class="text-gray-400"><i class="fas fa-${String(f.distance || '').indexOf('打车') >= 0 ? 'taxi' : 'walking'} mr-1"></i>${f.distance || '距离待核验'}</span>
-                                </div>
-                            </div>
-                        `;
-                        foodGrid.appendChild(card);
-                    });
-                }
-
-                // --- 高德地图动态加载与初始化 ---
-                async function loadAMapAndData() {
-                    try {
-                        const dataRes = await fetch('/api/guide-data');
-                        const data = await dataRes.json();
-                        if (!data.ok) throw new Error(data.error || '获取向导数据失败');
-
-                        renderFoodCards(data.foods || []);
-
-                        const route = data.route || {};
-                        const summary = document.getElementById('drivingSummary');
-                        const km = route.distanceMeters ? (route.distanceMeters/1000).toFixed(1) + ' km' : '-';
-                        const mins = route.durationSeconds ? Math.round(route.durationSeconds/60) + ' 分钟' : '-';
-                        summary.innerHTML = `距离：${km} · 预计：${mins} · 出租预估：¥${route.taxiCost||'-'}`;
-
-                        const cfgRes = await fetch('/api/amap-config');
-                        const cfg = await cfgRes.json();
-                        if (!cfg.ok) throw new Error(cfg.error || '获取高德配置失败');
-
-                        const key = cfg.key;
-                        const security = cfg.securityJsCode;
-                        const src = `https://webapi.amap.com/maps?v=2.0&key=${key}&plugin=AMap.ToolBar,AMap.Scale&securityJsCode=${security}`;
-
-                        await new Promise((resolve, reject) => {
-                            const s = document.createElement('script');
-                            s.src = src;
-                            s.onload = resolve;
-                            s.onerror = () => reject(new Error('加载高德脚本失败'));
-                            document.head.appendChild(s);
-                        });
-
-                        const parkLoc = (data.park && data.park.location ? data.park.location : '103.824657,36.037959').split(',').map(Number);
-                        const schoolLoc = (data.school && data.school.location ? data.school.location : '').split(',').map(Number);
-
-                        const map = new AMap.Map('mapContainer', {
-                            center: parkLoc,
-                            zoom: 13
-                        });
-
-                        // 添加控件
-                        AMap.plugin(['AMap.ToolBar','AMap.Scale'], function(){
-                            map.addControl(new AMap.ToolBar());
-                            map.addControl(new AMap.Scale());
-                        });
-
-                        // 目的地标记
-                        new AMap.Marker({ map, position: parkLoc, title: (data.park && data.park.name) || '目的地' });
-
-                        // 学校标记
-                        if (schoolLoc.length === 2) {
-                            new AMap.Marker({ map, position: schoolLoc, title: (data.school && data.school.name) || '出发地' });
-                        }
-
-                        // 餐馆与POI列表
-                        const poiListEl = document.getElementById('poiList');
-                        (data.foods || []).forEach((f) => {
-                            if (!f.location) return;
-                            const loc = f.location.split(',').map(Number);
-                            const marker = new AMap.Marker({ map, position: loc, title: f.name });
-                            marker.on('click', () => {
-                                const info = `<div class="poi-info-window"><strong>${f.name}</strong><div class="poi-info-address">${f.address || ''}</div></div>`;
-                                new AMap.InfoWindow({ content: info }).open(map, marker.getPosition());
-                            });
-
-                            const li = document.createElement('li');
-                            li.innerHTML = `<button class="text-left w-full text-sm text-gray-700 hover:text-amber-700"><div class=\"font-medium\">${f.name}</div><div class=\"text-xs text-gray-500\">${f.style||''} · 人均 ${f.cost||'-'}</div></button>`;
-                            const btn = li.querySelector('button');
-                            btn.addEventListener('click', () => { map.setZoomAndCenter(16, loc); });
-                            poiListEl.appendChild(li);
-                        });
-
-                    } catch (err) {
-                        console.error(err);
-                        const el = document.getElementById('mapContainer');
-                        if (el) el.innerText = '地图加载失败：' + (err.message || err);
-                        const foodGrid = document.getElementById('foodGrid');
-                        if (foodGrid && foodGrid.innerText.indexOf('正在加载美食推荐') >= 0) {
-                            foodGrid.innerHTML = '<div class="text-center py-12 text-red-500">美食数据加载失败，请稍后刷新重试</div>';
-                        }
-                    }
-                }
-
-                // 延迟加载地图，提升首屏速度
-                setTimeout(() => { loadAMapAndData(); }, 600);
                     heroText.innerHTML = text;
                 }
             };
             setTimeout(typeWriter, 500);
         }
+
+        // ========== 美食卡片渲染 ==========
+        function renderFoodCards(foods) {
+            const foodGrid = document.getElementById('foodGrid');
+            if (!foodGrid) return;
+
+            if (!foods || foods.length === 0) {
+                foodGrid.innerHTML = '<div class="text-center py-12 text-gray-500">暂未获取到可用的美食数据</div>';
+                return;
+            }
+
+            foodGrid.innerHTML = '';
+            foods.forEach((f, idx) => {
+                const badge = f.badge || '';
+                const badgeColorClass = {
+                    red: 'bg-red-100 text-red-600',
+                    amber: 'bg-amber-100 text-amber-600',
+                    blue: 'bg-blue-100 text-blue-600',
+                    purple: 'bg-purple-100 text-purple-600',
+                    orange: 'bg-orange-100 text-orange-600',
+                    teal: 'bg-teal-100 text-teal-600'
+                }[f.badgeColor] || 'bg-gray-100 text-gray-600';
+
+                const delayClass = idx % 3 === 0 ? '' : idx % 3 === 1 ? 'delay-100' : 'delay-200';
+                const card = document.createElement('div');
+                card.className = `glass-card rounded-2xl overflow-hidden hover-lift ${delayClass}`;
+                card.innerHTML = `
+                    <div class="h-48 bg-gradient-to-br ${f.colorFrom || 'from-amber-400'} ${f.colorTo || 'to-orange-500'} flex items-center justify-center text-white text-5xl">
+                        <i class="fas fa-${f.icon || 'utensils'}"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-serif-sc text-xl font-bold text-gray-900">${f.name || '周边美食'}</h3>
+                            <span class="${badgeColorClass} text-xs px-2 py-1 rounded-full font-medium">${badge || '推荐'}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">${f.address || '地址待补充'}</p>
+                        <p class="text-gray-600 text-sm mb-4">${f.description || (f.style || '周边餐饮推荐')}</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-amber-700 font-bold">人均 ¥${f.cost || '-'}</span>
+                            <span class="text-gray-400"><i class="fas fa-${String(f.distance || '').indexOf('打车') >= 0 ? 'taxi' : 'walking'} mr-1"></i>${f.distance || '距离待核验'}</span>
+                        </div>
+                    </div>
+                `;
+                foodGrid.appendChild(card);
+            });
+        }
+
+        // ========== 高德地图动态加载与初始化 ==========
+        async function loadAMapAndData() {
+            try {
+                const dataRes = await fetch('/api/guide-data');
+                const data = await dataRes.json();
+                if (!data.ok) throw new Error(data.error || '获取向导数据失败');
+
+                renderFoodCards(data.foods || []);
+
+                // 驾车概况
+                const route = data.route || {};
+                const summary = document.getElementById('drivingSummary');
+                const km = route.distanceMeters ? (route.distanceMeters/1000).toFixed(1) + ' km' : '-';
+                const mins = route.durationSeconds ? Math.round(route.durationSeconds/60) + ' 分钟' : '-';
+                summary.innerHTML = `距离：${km} · 预计：${mins} · 出租预估：¥${route.taxiCost||'-'}`;
+
+                // 获取高德配置
+                const cfgRes = await fetch('/api/amap-config');
+                const cfg = await cfgRes.json();
+                if (!cfg.ok) throw new Error(cfg.error || '获取高德配置失败');
+
+                const key = cfg.key;
+                const security = cfg.securityJsCode;
+                const src = `https://webapi.amap.com/maps?v=2.0&key=${key}&plugin=AMap.ToolBar,AMap.Scale&securityJsCode=${security}`;
+
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = src;
+                    s.onload = resolve;
+                    s.onerror = () => reject(new Error('加载高德脚本失败'));
+                    document.head.appendChild(s);
+                });
+
+                const parkLoc = (data.park && data.park.location ? data.park.location : '103.824657,36.037959').split(',').map(Number);
+                const schoolLoc = (data.school && data.school.location ? data.school.location : '').split(',').map(Number);
+
+                const map = new AMap.Map('mapContainer', {
+                    center: parkLoc,
+                    zoom: 14
+                });
+
+                AMap.plugin(['AMap.ToolBar','AMap.Scale'], function(){
+                    map.addControl(new AMap.ToolBar());
+                    map.addControl(new AMap.Scale());
+                });
+
+                const poiListEl = document.getElementById('poiList');
+
+                // --- 景点标记 & 列表 ---
+                const spots = data.spots || [];
+                if (spots.length > 0) {
+                    // 景点分组标题
+                    const spotHeader = document.createElement('li');
+                    spotHeader.innerHTML = '<div class="text-xs font-bold text-amber-700 uppercase tracking-wider mt-2 mb-1"><i class="fas fa-mountain mr-1"></i>登山景点</div>';
+                    poiListEl.appendChild(spotHeader);
+
+                    spots.forEach((s) => {
+                        if (!s.location) return;
+                        const loc = s.location.split(',').map(Number);
+                        const marker = new AMap.Marker({
+                            map,
+                            position: loc,
+                            title: s.name,
+                            // 用不同颜色区分景点
+                            label: { content: s.name, direction: 'top' }
+                        });
+                        marker.on('click', () => {
+                            const info = `<div class="poi-info-window"><strong>${s.name}</strong><div class="poi-info-address">${s.description || ''}</div></div>`;
+                            new AMap.InfoWindow({ content: info }).open(map, marker.getPosition());
+                        });
+
+                        const li = document.createElement('li');
+                        li.innerHTML = `<button class="text-left w-full text-sm text-gray-700 hover:text-amber-700"><div class=\"font-medium\">${s.name}</div><div class=\"text-xs text-gray-500\">${s.description || ''}</div></button>`;
+                        const btn = li.querySelector('button');
+                        btn.addEventListener('click', () => { map.setZoomAndCenter(16, loc); });
+                        poiListEl.appendChild(li);
+                    });
+                }
+
+                // --- 出发地 & 目的地标记 ---
+                new AMap.Marker({ map, position: parkLoc, title: (data.park && data.park.name) || '目的地' });
+                if (schoolLoc.length === 2) {
+                    new AMap.Marker({ map, position: schoolLoc, title: (data.school && data.school.name) || '出发地' });
+                }
+
+                // --- 美食标记 & 列表 ---
+                const foods = data.foods || [];
+                if (foods.length > 0) {
+                    const foodHeader = document.createElement('li');
+                    foodHeader.innerHTML = '<div class="text-xs font-bold text-green-700 uppercase tracking-wider mt-3 mb-1"><i class="fas fa-utensils mr-1"></i>周边美食</div>';
+                    poiListEl.appendChild(foodHeader);
+
+                    foods.forEach((f) => {
+                        if (!f.location) return;
+                        const loc = f.location.split(',').map(Number);
+                        const marker = new AMap.Marker({ map, position: loc, title: f.name });
+                        marker.on('click', () => {
+                            const info = `<div class="poi-info-window"><strong>${f.name}</strong><div class="poi-info-address">${f.address || ''}</div></div>`;
+                            new AMap.InfoWindow({ content: info }).open(map, marker.getPosition());
+                        });
+
+                        const li = document.createElement('li');
+                        li.innerHTML = `<button class="text-left w-full text-sm text-gray-700 hover:text-green-700"><div class=\"font-medium\">${f.name}</div><div class=\"text-xs text-gray-500\">${f.style||''} · 人均 ${f.cost||'-'}</div></button>`;
+                        const btn = li.querySelector('button');
+                        btn.addEventListener('click', () => { map.setZoomAndCenter(16, loc); });
+                        poiListEl.appendChild(li);
+                    });
+                }
+
+                // 自动调整视野包含所有标记
+                map.setFitView();
+
+            } catch (err) {
+                console.error(err);
+                const el = document.getElementById('mapContainer');
+                if (el) el.innerText = '地图加载失败：' + (err.message || err);
+                const foodGrid = document.getElementById('foodGrid');
+                if (foodGrid && foodGrid.innerText.indexOf('正在加载美食推荐') >= 0) {
+                    foodGrid.innerHTML = '<div class="text-center py-12 text-red-500">美食数据加载失败，请稀后刷新重试</div>';
+                }
+            }
+        }
+
+        // 延迟加载地图，提升首屏速度
+        setTimeout(() => { loadAMapAndData(); }, 600);
     </script>
 </body>
 </html>
