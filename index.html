@@ -1047,9 +1047,66 @@
                     setTimeout(typeWriter, 50);
                 } else {
 
+                function renderFoodCards(foods) {
+                    const foodGrid = document.getElementById('foodGrid');
+                    if (!foodGrid) return;
+
+                    if (!foods || foods.length === 0) {
+                        foodGrid.innerHTML = '<div class="text-center py-12 text-gray-500">暂未获取到可用的美食数据</div>';
+                        return;
+                    }
+
+                    foodGrid.innerHTML = '';
+                    foods.forEach((f, idx) => {
+                        const badge = f.badge || '';
+                        const badgeColorClass = {
+                            red: 'bg-red-100 text-red-600',
+                            amber: 'bg-amber-100 text-amber-600',
+                            blue: 'bg-blue-100 text-blue-600',
+                            purple: 'bg-purple-100 text-purple-600',
+                            orange: 'bg-orange-100 text-orange-600',
+                            teal: 'bg-teal-100 text-teal-600'
+                        }[f.badgeColor] || 'bg-gray-100 text-gray-600';
+
+                        const delayClass = idx % 3 === 0 ? '' : idx % 3 === 1 ? 'delay-100' : 'delay-200';
+                        const card = document.createElement('div');
+                        card.className = `glass-card rounded-2xl overflow-hidden hover-lift ${delayClass}`;
+                        card.innerHTML = `
+                            <div class="h-48 bg-gradient-to-br ${f.colorFrom || 'from-amber-400'} ${f.colorTo || 'to-orange-500'} flex items-center justify-center text-white text-5xl">
+                                <i class="fas fa-${f.icon || 'utensils'}"></i>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-serif-sc text-xl font-bold text-gray-900">${f.name || '周边美食'}</h3>
+                                    <span class="${badgeColorClass} text-xs px-2 py-1 rounded-full font-medium">${badge || '推荐'}</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mb-3">${f.address || '地址待补充'}</p>
+                                <p class="text-gray-600 text-sm mb-4">${f.description || (f.style || '周边餐饮推荐')}</p>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-amber-700 font-bold">人均 ¥${f.cost || '-'}</span>
+                                    <span class="text-gray-400"><i class="fas fa-${String(f.distance || '').indexOf('打车') >= 0 ? 'taxi' : 'walking'} mr-1"></i>${f.distance || '距离待核验'}</span>
+                                </div>
+                            </div>
+                        `;
+                        foodGrid.appendChild(card);
+                    });
+                }
+
                 // --- 高德地图动态加载与初始化 ---
                 async function loadAMapAndData() {
                     try {
+                        const dataRes = await fetch('/api/guide-data');
+                        const data = await dataRes.json();
+                        if (!data.ok) throw new Error(data.error || '获取向导数据失败');
+
+                        renderFoodCards(data.foods || []);
+
+                        const route = data.route || {};
+                        const summary = document.getElementById('drivingSummary');
+                        const km = route.distanceMeters ? (route.distanceMeters/1000).toFixed(1) + ' km' : '-';
+                        const mins = route.durationSeconds ? Math.round(route.durationSeconds/60) + ' 分钟' : '-';
+                        summary.innerHTML = `距离：${km} · 预计：${mins} · 出租预估：¥${route.taxiCost||'-'}`;
+
                         const cfgRes = await fetch('/api/amap-config');
                         const cfg = await cfgRes.json();
                         if (!cfg.ok) throw new Error(cfg.error || '获取高德配置失败');
@@ -1065,10 +1122,6 @@
                             s.onerror = () => reject(new Error('加载高德脚本失败'));
                             document.head.appendChild(s);
                         });
-
-                        const dataRes = await fetch('/api/guide-data');
-                        const data = await dataRes.json();
-                        if (!data.ok) throw new Error(data.error || '获取向导数据失败');
 
                         const parkLoc = (data.park && data.park.location ? data.park.location : '103.824657,36.037959').split(',').map(Number);
                         const schoolLoc = (data.school && data.school.location ? data.school.location : '').split(',').map(Number);
@@ -1110,56 +1163,14 @@
                             poiListEl.appendChild(li);
                         });
 
-                        // 驾车概况
-                        const route = data.route || {};
-                        const summary = document.getElementById('drivingSummary');
-                        const km = route.distanceMeters ? (route.distanceMeters/1000).toFixed(1) + ' km' : '-';
-                        const mins = route.durationSeconds ? Math.round(route.durationSeconds/60) + ' 分钟' : '-';
-                        summary.innerHTML = `距离：${km} · 预计：${mins} · 出租预估：¥${route.taxiCost||'-'}`;
-
-                        // 动态生成美食卡片
-                        const foodGrid = document.getElementById('foodGrid');
-                        if (foodGrid && data.foods && data.foods.length > 0) {
-                            foodGrid.innerHTML = '';
-                            data.foods.forEach((f, idx) => {
-                                const badge = f.badge || '';
-                                const badgeColorClass = {
-                                    red: 'bg-red-100 text-red-600',
-                                    amber: 'bg-amber-100 text-amber-600',
-                                    blue: 'bg-blue-100 text-blue-600',
-                                    purple: 'bg-purple-100 text-purple-600',
-                                    orange: 'bg-orange-100 text-orange-600',
-                                    teal: 'bg-teal-100 text-teal-600'
-                                }[f.badgeColor] || 'bg-gray-100 text-gray-600';
-
-                                const delayClass = idx % 3 === 0 ? '' : idx % 3 === 1 ? 'delay-100' : 'delay-200';
-                                const card = document.createElement('div');
-                                card.className = `glass-card rounded-2xl overflow-hidden hover-lift scroll-reveal ${delayClass}`;
-                                card.innerHTML = `
-                                    <div class="h-48 bg-gradient-to-br ${f.colorFrom} ${f.colorTo} flex items-center justify-center text-white text-5xl">
-                                        <i class="fas fa-${f.icon}"></i>
-                                    </div>
-                                    <div class="p-6">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <h3 class="font-serif-sc text-xl font-bold text-gray-900">${f.name}</h3>
-                                            <span class="${badgeColorClass} text-xs px-2 py-1 rounded-full font-medium">${badge}</span>
-                                        </div>
-                                        <p class="text-sm text-gray-500 mb-3">${f.address}</p>
-                                        <p class="text-gray-600 text-sm mb-4">${f.description}</p>
-                                        <div class="flex items-center justify-between text-sm">
-                                            <span class="text-amber-700 font-bold">人均 ¥${f.cost}</span>
-                                            <span class="text-gray-400"><i class="fas fa-${f.distance.indexOf('打车') >= 0 ? 'taxi' : 'walking'} mr-1"></i>${f.distance}</span>
-                                        </div>
-                                    </div>
-                                `;
-                                foodGrid.appendChild(card);
-                            });
-                        }
-
                     } catch (err) {
                         console.error(err);
                         const el = document.getElementById('mapContainer');
                         if (el) el.innerText = '地图加载失败：' + (err.message || err);
+                        const foodGrid = document.getElementById('foodGrid');
+                        if (foodGrid && foodGrid.innerText.indexOf('正在加载美食推荐') >= 0) {
+                            foodGrid.innerHTML = '<div class="text-center py-12 text-red-500">美食数据加载失败，请稍后刷新重试</div>';
+                        }
                     }
                 }
 

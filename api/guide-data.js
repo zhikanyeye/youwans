@@ -10,110 +10,107 @@ const PARK = {
   location: '103.824657,36.037959'
 };
 
-const FOODS = [
+const VERIFIED_FOODS = [
   {
-    name: '伊兴面片',
-    address: '五泉山店 · 就在公园旁边',
-    location: '103.827000,36.038500',
-    rating: '4.5',
-    cost: '20-30',
-    openTime: '10:00-21:00',
-    phone: '13919110233',
-    style: '招牌炒面片、腱子肉',
-    description: '招牌炒面片、腱子肉，清真风味。面条劲道，肉片厚实，是爬山后补充能量的绝佳选择。',
-    badge: '最近',
-    badgeColor: 'red',
-    icon: 'utensils',
-    distance: '步行3分钟',
-    colorFrom: 'from-amber-400',
-    colorTo: 'to-orange-500'
-  },
-  {
-    name: '占国牛肉面',
-    address: '五泉山下 · 本地学生最爱',
-    location: '103.826500,36.039000',
-    rating: '4.6',
-    cost: '15-25',
-    openTime: '06:00-15:00',
-    phone: '13919221441',
-    style: '牛腱子肉扎实，面条劲道',
-    description: '牛腱子肉扎实，面条劲道。推荐"二细"或"韭叶"，加肉蛋双飞。下午去汤会稍咸，建议中午前。',
-    badge: '必吃',
-    badgeColor: 'amber',
-    icon: 'bowl-rice',
-    distance: '步行5分钟',
-    colorFrom: 'from-yellow-400',
-    colorTo: 'to-amber-500'
-  },
-  {
-    name: '再回首',
-    address: '大众巷店/道升巷店',
-    location: '103.830000,36.060000',
-    rating: '4.3',
-    cost: '15-20',
-    openTime: '09:00-22:00',
-    phone: '0931-8888888',
-    style: '兰州小吃集合店',
-    description: '高担酿皮、灰豆子、甜胚子奶茶、油炒粉。兰州小吃集合店，人均不到20元吃到撑，学生党福音。',
-    badge: '小吃',
-    badgeColor: 'blue',
-    icon: 'leaf',
-    distance: '打车10分钟',
-    colorFrom: 'from-green-400',
-    colorTo: 'to-emerald-500'
-  },
-  {
-    name: '杜记甜食',
-    address: '西关什字附近',
-    location: '103.835000,36.055000',
-    rating: '4.2',
-    cost: '10-15',
-    openTime: '08:00-20:00',
-    phone: '0931-7777777',
-    style: '兰州老字号甜食',
-    description: '灰豆子、甜醅子、晶糕、糖油糕。兰州老字号甜食店，6元一碗的灰豆子温暖又扎实。',
-    badge: '甜品',
-    badgeColor: 'purple',
-    icon: 'cookie-bite',
-    distance: '打车12分钟',
-    colorFrom: 'from-purple-400',
-    colorTo: 'to-pink-500'
-  },
-  {
-    name: '阿西娅羊羔肉',
-    address: '西关店 · 西北菜天花板',
-    location: '103.838000,36.052000',
-    rating: '4.7',
-    cost: '60-80',
-    openTime: '11:00-23:00',
-    phone: '0931-6666666',
-    style: '黄焖羊羔肉、手抓羊肉',
-    description: '黄焖羊羔肉鲜嫩无膻味，配沙葱和油香饼。手抓羊肉也是一绝，三泡台茶解腻一流。',
-    badge: '正餐',
-    badgeColor: 'orange',
-    icon: 'drumstick-bite',
-    distance: '打车10分钟',
-    colorFrom: 'from-red-400',
-    colorTo: 'to-orange-500'
-  },
-  {
-    name: '五泉老街',
-    address: '公园周边',
-    location: '103.827500,36.037500',
+    name: '德祥楼（中山林店）',
+    address: '民主西路299号至诚大厦写字楼1-3层',
+    location: '103.826393,36.045697',
     rating: '4.4',
-    cost: '15-30',
-    openTime: '06:00-23:00',
-    phone: '无',
-    style: '牛肉面馆、烧烤摊、小吃街',
-    description: '牛肉面馆、烧烤摊、小吃一条街。爬山下来随便找一家牛肉面，配上一碟小菜，最是地道。',
-    badge: '夜市',
-    badgeColor: 'teal',
-    icon: 'fire',
-    distance: '步行可达',
-    colorFrom: 'from-teal-400',
-    colorTo: 'to-cyan-500'
+    cost: '107',
+    openTime: '10:00-21:30',
+    phone: '0931-8113905',
+    style: '清真正餐 / 羊肉更强'
+  },
+  {
+    name: '国保牛肉面（总店）',
+    address: '中路子79号（近电力大厦）',
+    location: '103.826633,36.046925',
+    rating: '4.6',
+    cost: '18',
+    openTime: '06:00-15:00',
+    phone: '13919221441 / 13993174294',
+    style: '学生预算友好'
+  },
+  {
+    name: '明德富纯汤牛肉面（五泉店）',
+    address: '五泉广场公交站附近',
+    location: '103.828858,36.040276',
+    rating: '4.1',
+    cost: '15',
+    openTime: '24小时营业',
+    phone: '18919019053',
+    style: '下山后就近省事'
   }
 ];
+
+function mapBadge(index) {
+  const labels = ['最近', '必吃', '热门', '口碑', '推荐', '可选'];
+  const colors = ['red', 'amber', 'blue', 'purple', 'orange', 'teal'];
+  const icons = ['utensils', 'bowl-rice', 'fire', 'cookie-bite', 'drumstick-bite', 'mug-hot'];
+  const gradients = [
+    ['from-amber-400', 'to-orange-500'],
+    ['from-yellow-400', 'to-amber-500'],
+    ['from-green-400', 'to-emerald-500'],
+    ['from-purple-400', 'to-pink-500'],
+    ['from-red-400', 'to-orange-500'],
+    ['from-teal-400', 'to-cyan-500']
+  ];
+
+  return {
+    badge: labels[index % labels.length],
+    badgeColor: colors[index % colors.length],
+    icon: icons[index % icons.length],
+    colorFrom: gradients[index % gradients.length][0],
+    colorTo: gradients[index % gradients.length][1]
+  };
+}
+
+function distanceToLabel(distanceMeters) {
+  const meters = Number(distanceMeters || 0);
+  if (!meters || Number.isNaN(meters)) return '距离待核验';
+  if (meters <= 1200) {
+    const mins = Math.max(3, Math.round(meters / 80));
+    return `步行约${mins}分钟`;
+  }
+  const mins = Math.max(6, Math.round(meters / 350));
+  return `打车约${mins}分钟`;
+}
+
+async function fetchNearbyFoods(key) {
+  const url = `https://restapi.amap.com/v3/place/around?key=${key}&location=${PARK.location}&radius=3000&types=050000&sortrule=distance&offset=12&page=1&extensions=all`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (data.status !== '1' || !Array.isArray(data.pois)) {
+    throw new Error('Failed to fetch nearby foods from AMap');
+  }
+
+  return data.pois
+    .filter((poi) => poi && poi.name && poi.location)
+    .slice(0, 6)
+    .map((poi, idx) => {
+      const meta = mapBadge(idx);
+      const rating = poi.biz_ext && poi.biz_ext.rating ? String(poi.biz_ext.rating) : '-';
+      const cost = poi.biz_ext && poi.biz_ext.cost ? String(poi.biz_ext.cost) : '-';
+      const typeParts = (poi.type || '').split(';').filter(Boolean);
+      const style = typeParts.length > 1 ? typeParts[1] : (typeParts[0] || '周边餐饮');
+      const distance = Number(poi.distance || 0);
+
+      return {
+        name: poi.name,
+        address: poi.address || '五泉山周边',
+        location: poi.location,
+        rating,
+        cost,
+        openTime: poi.biz_ext && poi.biz_ext.open_time ? poi.biz_ext.open_time : '以门店实际营业为准',
+        phone: poi.tel || '暂无',
+        style,
+        description: `${style}，距五泉山约${distance || '-'}米。`,
+        distance: distanceToLabel(distance),
+        ...meta
+      };
+    });
+}
 
 async function fetchDrivingSummary(key) {
   const url = `https://restapi.amap.com/v3/direction/driving?origin=${SCHOOL.location}&destination=${PARK.location}&output=JSON&strategy=0&key=${key}`;
@@ -141,7 +138,15 @@ module.exports = async (req, res) => {
       return res.status(500).json({ ok: false, error: 'Missing AMAP_WEBSERVICE_KEY' });
     }
 
-    const route = await fetchDrivingSummary(key);
+    const [route, nearbyFoods] = await Promise.all([
+      fetchDrivingSummary(key),
+      fetchNearbyFoods(key).catch(() => VERIFIED_FOODS.map((food, idx) => ({
+        ...food,
+        description: `${food.style}，以门店实际信息为准。`,
+        distance: idx === 0 ? '步行约15分钟' : '打车约8-12分钟',
+        ...mapBadge(idx)
+      })))
+    ]);
 
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=1800');
     return res.status(200).json({
@@ -150,7 +155,7 @@ module.exports = async (req, res) => {
       school: SCHOOL,
       park: PARK,
       route,
-      foods: FOODS,
+      foods: nearbyFoods,
       verifiedAt: '2026-05-03'
     });
   } catch (error) {
